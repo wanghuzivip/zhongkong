@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flf.mapper.UserMapper">
+	
+<!-- 	1、addRegistCode：生成一条用户记录
+2、getRegistCode：分页获取
+3、findRegistCode：按条件查询，请求参数作为查询条件（可以按照不同条件查询）
+4、updateRegistCode：根据id，修改某条记录（为了减少接口数量，客户端调用接口时只传修改的字段，服务端只修改我传递的字段，其他不用变）
+5、deleteRegistCode：删除某条记录
+	`name` varchar(64) NOT NULL DEFAULT '',
+  `registCode` varchar(64) NOT NULL,
+  `hasUsed` tinyint(2) DEFAULT '0',
+  `registTime` bigint(20) DEFAULT NULL,
+  `limitTime` bigint(20) DEFAULT NULL,
+  `lastSynTime` bigint(20) DEFAULT NULL,
+  `lastSetTime` bigint(20) DEFAULT NULL,
+  `codeDbName` varchar(64) DEFAULT NULL,
+  `codeDbUrl` varchar(64) DEFAULT NULL,
+  `codeDbVersion` int(10) DEFAULT NULL,
+  `codeDbLastUpdateTime` bigint(20) DEFAULT NULL,
+  `beizhu` varchar(128) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`) USING BTREE
+	
+	
+	 -->
+	
+	<sql id="userAllColumns">id,name,registCode,hasUsed,registTime,limitTime,lastSynTime,lastSetTime,codeDbName,codeDbUrl,codeDbVersion,codeDbLastUpdateTime,beizhu</sql>
+	<sql id="userColumns">name,registCode,hasUsed,registTime,limitTime,lastSynTime,lastSetTime,codeDbName,codeDbUrl,codeDbVersion,codeDbLastUpdateTime,beizhu</sql>
+	
+	<sql id="userColumns">account,name,email,sex,age</sql>
+
+	<resultMap type="User" id="userResultMap">
+		<id column="user_id" property="userId"/>
+		<result column="name" property="name"/>
+		<result column="account" property="account"/>
+		<result column="email" property="email"/>
+		<result column="sex" property="sex"/>
+		<result column="age" property="age"/>
+	</resultMap>
+	
+	<select id="listAllUserByLmit" parameterType="Limit" resultMap="userResultMap">
+		select * from tb_user ORDER BY user_id DESC limit #{start},#{size} 
+	</select>
+	
+	
+	<select id="getUserInfo" parameterType="User" resultMap="userResultMap">
+		select * from tb_user where 1=1
+		<if test="name!=null">
+		and name like "%"#{name}"%"
+		</if>
+		
+		<if test="account!=null">
+		and account like "%"#{account}"%"
+		</if>
+		
+		<if test="email!=null">
+		and email like "%"#{email}"%"
+		</if>
+		<if test="age!=null and age > 0">
+		and age = #{age}
+		</if>
+		
+		<if test="sex!=null">
+		and sex = #{sex}
+		</if>
+		
+		<if test="userId!=null and userId>0">
+		and user_id = #{userId}
+		</if>
+		ORDER BY user_id DESC limit #{start},#{size}
+		
+	</select>
+	
+	
+	<select id="getUserById" parameterType="int" resultMap="userResultMap">
+		select * from tb_user u where u.user_id = #{userId}
+	</select>
+	
+	<select id="getCount"  resultType="int">
+		select count(user_id) from tb_user 
+	</select>
+	
+	<insert id="insertUser" parameterType="User" useGeneratedKeys="true" keyProperty="userId">
+		insert tb_user (<include refid="userColumns"/>) values (#{account},#{name},#{email},#{sex},#{age})
+	</insert>
+	
+	<update id="updateUser" parameterType="User">
+		update tb_user set 
+		name=#{name},
+		account=#{account},
+		email=#{email},
+		sex=#{sex},
+		age=#{age}
+		where user_id = #{userId}
+	</update>
+	
+
+	<delete id="deleteUser" parameterType="int">
+		delete from tb_user where user_id=#{userId}
+	</delete>
+	
+</mapper>

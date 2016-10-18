@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flf.mapper.UserMapper">
+	<sql id="userColumns">account,name,email,sex,age</sql>
+
+	<resultMap type="User" id="userResultMap">
+		<id column="user_id" property="userId"/>
+		<result column="name" property="name"/>
+		<result column="account" property="account"/>
+		<result column="email" property="email"/>
+		<result column="sex" property="sex"/>
+		<result column="age" property="age"/>
+	</resultMap>
+	
+	<select id="listAllUserByLmit" parameterType="Limit" resultMap="userResultMap">
+		select * from tb_user ORDER BY user_id DESC limit #{start},#{size} 
+	</select>
+	
+	
+	<select id="getUserInfo" parameterType="User" resultMap="userResultMap">
+		select * from tb_user where 1=1
+		<if test="name!=null">
+		and name like "%"#{name}"%"
+		</if>
+		
+		<if test="account!=null">
+		and account like "%"#{account}"%"
+		</if>
+		
+		<if test="email!=null">
+		and email like "%"#{email}"%"
+		</if>
+		<if test="age!=null and age > 0">
+		and age = #{age}
+		</if>
+		
+		<if test="sex!=null">
+		and sex = #{sex}
+		</if>
+		
+		<if test="userId!=null and userId>0">
+		and user_id = #{userId}
+		</if>
+		ORDER BY user_id DESC limit #{start},#{size}
+		
+	</select>
+	
+	
+	<select id="getUserById" parameterType="int" resultMap="userResultMap">
+		select * from tb_user u where u.user_id = #{userId}
+	</select>
+	
+	<select id="getCount"  resultType="int">
+		select count(user_id) from tb_user 
+	</select>
+	
+	<insert id="insertUser" parameterType="User" useGeneratedKeys="true" keyProperty="userId">
+		insert tb_user (<include refid="userColumns"/>) values (#{account},#{name},#{email},#{sex},#{age})
+	</insert>
+	
+	<update id="updateUser" parameterType="User">
+		update tb_user set 
+		name=#{name},
+		account=#{account},
+		email=#{email},
+		sex=#{sex},
+		age=#{age}
+		where user_id = #{userId}
+	</update>
+	
+
+	<delete id="deleteUser" parameterType="int">
+		delete from tb_user where user_id=#{userId}
+	</delete>
+	
+</mapper>
